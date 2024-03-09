@@ -1,4 +1,10 @@
 import subprocess
+import os
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()
+root.withdraw()
 
 def create_vm(vm_name, os_type, iso_path, memory_size, disk_size, disk_format='VDI', disk_location=None, is_64bit=True, vm_folder=None):
 
@@ -13,17 +19,20 @@ def create_vm(vm_name, os_type, iso_path, memory_size, disk_size, disk_format='V
         '--register'
     ]
 
+    #set VM save folder, this will try to create a directory called VirtualMachines in the C drive and will save any created VMs there. if it detects the folder already exists it will call an exception and still save the VMs
+    if vm_folder:
+        subprocess.run([vboxmanage_path, 'setproperty', 'machinefolder', vm_folder], check=True)
+        try:
+            os.makedirs(vm_folder)
+        except FileExistsError:
+            print(f"Directory '{vm_folder}' already exists.")
+
+    
     #run VBox command
     subprocess.run(cmd, check=True)
 
     #set memory size
     subprocess.run([vboxmanage_path, 'modifyvm', vm_name, '--memory', str(memory_size)], check=True)
-
-    #set VM save folder
-    if vm_folder is None:
-        vm_folder = ''
-    else:
-        vm_folder = f'--basefolder "{vm_folder}"'
 
     #create the virtual disk
     if disk_location is None:
@@ -45,23 +54,27 @@ vm_name = input("Please name the Virtual Machine: ")
 #disk_size = input("Please enter the desired allocated disk space in MB: ")
 
 
+#allows the user to pick from different ISOs on their system.
+file_path = filedialog.askopenfilename(title="Select Image", filetypes=[("ISO Image", ".iso")])
 
-
-#next thing to do is to allow the user to pick from different ISOs, change the raw filepath in the function parameters to a list variable that can be chosen from
 
 #call create_vm function after taking all user parameters
 #current parameters are: vm name, operating system, path to ISO file, memory size in MB, disk size in MB, 64bit, VM folder location
-create_vm(vm_name, 'Linux', r'C:\Users\pokem\Documents\ISO_files\arch_linux_64bit\archlinux-2024.03.01-x86_64.iso', 2048, 20000, is_64bit=True, vm_folder=r'C:\\Program Files\\Oracle')
+create_vm(vm_name, 'Linux', file_path, 2048, 20000, is_64bit=True, vm_folder=r'C:\\VirtualMachines')
 
 
 #FOR NOW, RENAME THE VM EVERY TIME YOU CREATE A NEW ONE SO THAT THE PROGRAM DOESNT CRASH
 
 #Current Notes:
 #   This has only been tested using an Arch Linux ISO for now, I will be testing Debian, Ubuntu, and Gentoo later and eventually allowing for any OS to be used
-#   So far the vm_folder function does not seem to change where the VMs VDI files are stored as they continue to be saved in VBoxManage's default location (that being C:\Users)
-#   The idea was to store the created VMs in the Oracle folder that VBoxManage is located in, as if the user has installed VBoxManage they will certainly have the Oracle folder too
+
+#   (So far the vm_folder function does not seem to change where the VMs VDI files are stored as they continue to be saved in VBoxManage's default location (that being C:\Users)
+#   vm_folder does manage to create a directory called "VirtualMachines" inside the C drive, however it refuses to save the VDI files in this folder (will research))
+#       This has finally been fixed, the base folder of VBoxManage has to be manually overriden in order to save the files to a new directory
 
 #   memory size and disk size variables have been commented out for now, just to allow for easier testing 
 #   SATA controller is not found and throws an error, however this does not stop the VM from being created and working, I assume this is because the Arch Linux ISO does not look for SATA connections.
-#   The filepath to the ISOs is currently hardcoded, I will need to find a way to get users to store their ISOs in a default location, or package this program with the ISOs bundled in
-#   My idea for this is to make the user enter the filepath manually, or if possible have a file explorer open for them to search for their ISOs and click on them to enter the filepath.
+
+#   (The filepath to the ISOs is currently hardcoded, I will need to find a way to get users to store their ISOs in a default location, or package this program with the ISOs bundled in 
+#   My idea for this is to make the user enter the filepath manually, or if possible have a file explorer open for them to search for their ISOs and click on them to enter the filepath.)
+#                   completed
