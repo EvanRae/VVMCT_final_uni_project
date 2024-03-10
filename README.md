@@ -1,3 +1,4 @@
+THIS CODE WORKS FOR WINDOWS ONLY 
 Installation and dependancies:
 Intall Oracle VirtualBox and make sure that the default installation path is not changed
 ISOs can be selected and used as a base for the virtual machines you create
