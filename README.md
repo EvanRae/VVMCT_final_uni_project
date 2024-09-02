@@ -1,5 +1,6 @@
 This is my university final project that aims to allow for the automated creation of vulnerable virtual machines. </br>
 This project is complete to the standards of the university and my final dissertaion, however there is still a lot of work that can potentially be done. </br>
+The vulnerabilities that exist currently are generic and simplistic as this project was mainly a proof-of-concept that such a tool could be created. </br>
 </br>
 Graded 77/100, First class.
 </br>
